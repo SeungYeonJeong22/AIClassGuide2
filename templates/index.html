@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Feed</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0; /* Light gray background */
+        }
+
+        #container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        #student-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        #student-video {
+            width: 15%;  /* 학생 비디오의 크기를 더 줄였습니다 */
+            background-color: #000;
+        }
+
+        #teacher-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 50%;  /* 선생 비디오의 크기를 더 줄였습니다 */
+            margin-top: 20px;
+        }
+
+        #teacher-video {
+            width: 50%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <!-- Combined student video and plot -->
+        <div id="student-container">
+            <img id="student-video" src="{{ url_for('student_video_feed') }}" alt="Student Video">
+        </div>
+
+        <!-- Teacher video -->
+        <div id="teacher-container">
+            <img id="teacher-video" src="{{ url_for('teacher_video_feed') }}" alt="Teacher Video">
+        </div>
+    </div>
+</body>
+</html>

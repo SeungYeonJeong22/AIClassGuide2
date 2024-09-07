@@ -25,28 +25,34 @@ def plot_emotion_history(height, x_start, emotion_history, time_history, emotion
     x_values = []
     y_values = []
 
+    # 3분(180초) 단위로 플롯을 초기화하는 로직 추가
+    plot_duration = 180  # 3분 동안 데이터를 그린 후 초기화
+    if len(time_history) > 0 and time_history[-1] >= plot_duration:
+        # 3분이 지나면 x_start를 플롯의 현재 마지막 시간으로 설정하여 플롯을 초기화
+        x_start += plot_duration
+
+        # 3분마다 이전 데이터를 비움
+        emotion_history.clear()
+        time_history.clear()
+        emotion_values_history.clear()
+
     # 각 시간에 따른 감정과 해당 위치 결정
     for i in range(len(emotion_history)):
-        # X축이 구간을 넘어서면 새로운 선을 그리도록 함
-        if i > 0 and time_history[i] < time_history[i-1]:
-            plt.plot(x_values, y_values, color='blue', linewidth=4.0)  # 선의 굵기를 4.0으로 설정
-            x_values = []  # 새 구간 시작
-            y_values = []
-
         emotion = emotion_history[i]
         y_pos = calculate_y_position(emotion, emotion_values_history[i][emotion])
 
         x_values.append(time_history[i] + x_start)
         y_values.append(y_pos)
 
-    # 남은 점들을 연결하여 마지막 선을 그림
-    plt.plot(x_values, y_values, color='blue', linewidth=4.0)  # 선의 굵기를 4.0으로 설정
+    # 선 그래프 그리기 (항상 파란색, 선 굵기 4.0)
+    plt.plot(x_values, y_values, color='blue', linewidth=4.0)
 
-    # 글씨 크기를 더 키움
+    # 글씨 크기 및 스타일 조정
     plt.yticks(ticks=range(len(emotion_order)), labels=emotion_order, fontsize=24)
+    plt.xticks(fontsize=24)  # x축 눈금의 글씨 크기 설정
     plt.ylim(-0.5, len(emotion_order) - 0.5)
-    plt.xlim(x_start, x_start + 60)  # 1분 (60초) 동안의 범위
-    plt.xlabel('Time (seconds)', fontsize=28)  # X축 라벨 크기 설정
+    plt.xlim(x_start, x_start + plot_duration)  # 3분 (180초) 동안의 범위
+    plt.xlabel('Time (seconds)', fontsize=32)  # X축 라벨 크기 설정
     plt.ylabel('Emotion', fontsize=28)  # Y축 라벨 크기 설정
     plt.title('Emotion Over Time', fontsize=32)  # 타이틀 크기 설정
     plt.grid(True)

@@ -152,11 +152,6 @@ def generate_student_video():
 def student_video_feed():
     return Response(generate_student_video(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-# @app.route('/plot')
-# def plot():
-#     plot_img = plot_emotion_history(student_frame.shape[0], start_time_offset, emotion_history, time_history, emotion_values_history)
-#     ret, buffer = cv2.imencode('.jpg', plot_img)
-#     return Response(buffer.tobytes(), mimetype='image/jpeg')
 
 # WebSocket 연결 처리
 async def handle_connection(websocket, path):

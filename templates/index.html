@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Feed</title>
+    <title>Emotion-Based Video Education</title>
     <style>
+        /* 전체 페이지 스타일 */
         body {
             margin: 0;
             padding: 0;
@@ -13,55 +14,113 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #f0f0f0; /* Light gray background */
+            background: linear-gradient(135deg, #f0f0f0, #d1e8ff); /* 부드러운 파스텔 그라데이션 */
+            font-family: 'Arial', sans-serif;
         }
 
+        /* 컨테이너 스타일 */
         #container {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             width: 100%;
+            max-width: 1400px; /* 최대 너비 설정 */
         }
 
+        /* 학생 비디오와 플롯을 가로로 나란히 배치 */
         #student-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.7); /* 투명한 흰색 배경 */
+            border-radius: 12px; /* 둥근 모서리 */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 가벼운 그림자 */
+        }
+
+        /* 학생 비디오 스타일 */
+        #student-video {
+            width: 100%;
+            height: auto;
+            background-color: #000;
+            border: 6px solid #48cae4; /* 감정 분석 테마 색상 */
+            border-radius: 12px;
+            transition: transform 0.3s ease-in-out; /* 부드러운 확대 효과 */
+        }
+
+        #student-video:hover {
+            transform: scale(1.05); /* 마우스 오버 시 확대 */
+        }
+
+        /* 플롯 컨테이너 */
+        #plot-container {
+            width: 55%;
+            height: auto;
+            margin-left: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 100%;
-            margin-bottom: 20px;
         }
 
-        #student-video {
-            width: 50%;  /* 학생 비디오의 크기를 키움 */
-            background-color: #000;
-        }
-
+        /* 선생님 비디오 스타일 */
         #teacher-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 60%;  /* 선생 비디오의 크기를 줄임 */
-            margin-top: 20px;
+            width: 90%;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         #teacher-video {
-            width: 60%;
+            width: 100%;
             height: auto;
+            border-radius: 12px;
+            border: 4px solid #ffb703; /* 선생님 비디오에 포인트 색상 */
+            transition: transform 0.3s ease-in-out; /* 부드러운 확대 효과 */
+        }
+
+        #teacher-video:hover {
+            transform: scale(1.05); /* 마우스 오버 시 확대 */
+        }        
+
+        /* 타이틀 스타일 */
+        h1 {
+            font-size: 3rem;
+            color: #023e8a; /* 차분한 감정 분석 테마의 파란색 */
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        /* 감정 분석을 나타내는 텍스트 스타일 */
+        .emotion-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff6b6b; /* 감정 변화에 맞춘 색상 강조 */
+            margin-top: 15px;
         }
     </style>
 </head>
 <body>
     <div id="container">
-        <!-- Combined student video and plot -->
+        <!-- 감정 분석 화상 교육 타이틀 -->
+        <h1>AI Class Guide (Emotion-Based Video Education)</h1>
+
+        <!-- 학생 비디오 (플롯 포함) -->
         <div id="student-container">
             <img id="student-video" src="{{ url_for('student_video_feed') }}" alt="Student Video">
         </div>
 
-        <!-- Teacher video -->
+        <!-- 선생님 비디오 -->
         <div id="teacher-container">
             <img id="teacher-video" src="{{ url_for('teacher_video_feed') }}" alt="Teacher Video">
         </div>
-    </di>
+    </div>
+
 </body>
 </html>

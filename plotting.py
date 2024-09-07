@@ -18,8 +18,8 @@ def calculate_y_position(emotion, value):
     return idx + (value / 100.0)
 
 def plot_emotion_history(height, x_start, emotion_history, time_history, emotion_values_history):
-    # 플롯의 가로 길이를 적절하게 조정 (가로: 12, 세로: height / 100 * 2.5)
-    plt.figure(figsize=(12, height / 100 * 2.5))  # 플롯의 가로를 키움 (이전보다 비율 조정)
+    # 플롯의 크기를 크게 설정 (가로: 24, 세로: 12)
+    plt.figure(figsize=(24, 12))  # 가로와 세로 크기를 크게 설정
 
     # X, Y 좌표 배열 초기화
     x_values = []
@@ -29,7 +29,7 @@ def plot_emotion_history(height, x_start, emotion_history, time_history, emotion
     for i in range(len(emotion_history)):
         # X축이 구간을 넘어서면 새로운 선을 그리도록 함
         if i > 0 and time_history[i] < time_history[i-1]:
-            plt.plot(x_values, y_values, color='blue', linewidth=3.0)  # 선의 굵기를 3.0으로 설정
+            plt.plot(x_values, y_values, color='blue', linewidth=4.0)  # 선의 굵기를 4.0으로 설정
             x_values = []  # 새 구간 시작
             y_values = []
 
@@ -40,15 +40,15 @@ def plot_emotion_history(height, x_start, emotion_history, time_history, emotion
         y_values.append(y_pos)
 
     # 남은 점들을 연결하여 마지막 선을 그림
-    plt.plot(x_values, y_values, color='blue', linewidth=3.0)  # 선의 굵기를 3.0으로 설정
+    plt.plot(x_values, y_values, color='blue', linewidth=4.0)  # 선의 굵기를 4.0으로 설정
 
     # 글씨 크기를 더 키움
-    plt.yticks(ticks=range(len(emotion_order)), labels=emotion_order, fontsize=18)
+    plt.yticks(ticks=range(len(emotion_order)), labels=emotion_order, fontsize=24)
     plt.ylim(-0.5, len(emotion_order) - 0.5)
     plt.xlim(x_start, x_start + 60)  # 1분 (60초) 동안의 범위
-    plt.xlabel('Time (seconds)', fontsize=20)  # X축 라벨 크기 설정
-    plt.ylabel('Emotion', fontsize=20)  # Y축 라벨 크기 설정
-    plt.title('Emotion Over Time', fontsize=24)  # 타이틀 크기 설정
+    plt.xlabel('Time (seconds)', fontsize=28)  # X축 라벨 크기 설정
+    plt.ylabel('Emotion', fontsize=28)  # Y축 라벨 크기 설정
+    plt.title('Emotion Over Time', fontsize=32)  # 타이틀 크기 설정
     plt.grid(True)
 
     # 플롯 이미지를 바이트 배열로 변환

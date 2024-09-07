@@ -29,11 +29,11 @@
             justify-content: center;
             align-items: center;
             width: 100%;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
 
         #student-video {
-            width: 15%;  /* 학생 비디오의 크기를 더 줄였습니다 */
+            width: 50%;  /* 학생 비디오의 크기를 키움 */
             background-color: #000;
         }
 
@@ -41,12 +41,12 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 50%;  /* 선생 비디오의 크기를 더 줄였습니다 */
+            width: 60%;  /* 선생 비디오의 크기를 줄임 */
             margin-top: 20px;
         }
 
         #teacher-video {
-            width: 50%;
+            width: 60%;
             height: auto;
         }
     </style>
@@ -62,6 +62,6 @@
         <div id="teacher-container">
             <img id="teacher-video" src="{{ url_for('teacher_video_feed') }}" alt="Teacher Video">
         </div>
-    </div>
+    </di>
 </body>
 </html>

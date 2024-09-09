@@ -159,6 +159,7 @@ async def handle_connection(websocket, path):
     connected_clients.add(websocket)
     try:
         await receive_student_video(websocket)
+        logging.info("Connection open with student")
     except Exception as e:
         logging.error(f"Connection closed: {e}")
     finally:

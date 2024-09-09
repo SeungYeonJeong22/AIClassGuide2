@@ -21,7 +21,7 @@ WEBSOCKET_PORT = int(os.getenv('WEBSOCKET_PORT', 8000))
 logging.basicConfig(level=logging.INFO)
 
 # 학생 페이지 라우팅
-@app.route('/student')
+@app.route('/')
 def home():
     return render_template('student.html')
 

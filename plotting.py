@@ -25,22 +25,25 @@ def plot_emotion_history(height, x_start, emotion_history, time_history, emotion
     x_values = []
     y_values = []
 
-    # 3분(180초) 단위로 플롯을 초기화하는 로직 추가
-    plot_duration = 180  # 3분 동안 데이터를 그린 후 초기화
+    # 1분(60초) 단위로 플롯을 초기화하는 로직 추가
+    plot_duration = 60  # 1분 동안 데이터를 그린 후 초기화
     if len(time_history) > 0 and time_history[-1] >= plot_duration:
-        # 3분이 지나면 x_start를 플롯의 현재 마지막 시간으로 설정하여 플롯을 초기화
+        # 3분이 지나면 x_start를 업데이트하고 플롯을 초기화
         x_start += plot_duration
 
-        # 3분마다 이전 데이터를 비움
-        emotion_history.clear()
-        time_history.clear()
+        # 새롭게 플롯을 그리기 위해 감정 및 시간 기록을 초기화
+        time_history.clear()  # time_history만 초기화
         emotion_values_history.clear()
 
+    # 두 리스트의 길이가 동일한지 확인
+    min_length = min(len(emotion_history), len(emotion_values_history))
+
     # 각 시간에 따른 감정과 해당 위치 결정
-    for i in range(len(emotion_history)):
+    for i in range(min_length):  # 가장 짧은 리스트의 길이만큼만 반복
         emotion = emotion_history[i]
         y_pos = calculate_y_position(emotion, emotion_values_history[i][emotion])
 
+        # x_start를 반영하여 새로운 x 값 추가
         x_values.append(time_history[i] + x_start)
         y_values.append(y_pos)
 
@@ -51,7 +54,7 @@ def plot_emotion_history(height, x_start, emotion_history, time_history, emotion
     plt.yticks(ticks=range(len(emotion_order)), labels=emotion_order, fontsize=24)
     plt.xticks(fontsize=24)  # x축 눈금의 글씨 크기 설정
     plt.ylim(-0.5, len(emotion_order) - 0.5)
-    plt.xlim(x_start, x_start + plot_duration)  # 3분 (180초) 동안의 범위
+    plt.xlim(x_start, x_start + plot_duration)  # x축의 범위 설정
     plt.xlabel('Time (seconds)', fontsize=32)  # X축 라벨 크기 설정
     plt.ylabel('Emotion', fontsize=28)  # Y축 라벨 크기 설정
     plt.title('Emotion Over Time', fontsize=32)  # 타이틀 크기 설정
@@ -68,4 +71,4 @@ def plot_emotion_history(height, x_start, emotion_history, time_history, emotion
     plot_img = np.array(plot_img)
     plot_img = cv2.cvtColor(plot_img, cv2.COLOR_RGB2BGR)  # Convert to BGR for OpenCV
 
-    return plot_img
+    return plot_img, x_start

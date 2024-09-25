@@ -8,6 +8,7 @@ from threading import Thread
 from dotenv import load_dotenv
 from emotion_analysis import analyze_emotion
 import logging
+import time
 
 load_dotenv('environments.env')
 
@@ -34,7 +35,10 @@ def generate_student_video():
     while True:
         ret, frame = cap.read()
         if not ret:
-            break
+            logging.error("Failed to grab frame from video capture device")
+            time.sleep(1)  # 잠시 대기 후 다시 시도
+            continue  # 프레임을 잡을 수 없으면 계속 반복
+
         ret, buffer = cv2.imencode('.jpg', frame)
         frame_data = buffer.tobytes()
 
@@ -58,11 +62,19 @@ async def send_student_video():
     try:
         async with websockets.connect(uri) as websocket:
             log_flag = False
-            # logging.info("Connected to WebSocket")
-            while cap.isOpened():
+            logging.info("Connected to WebSocket")
+            while True:
+                if not cap.isOpened():
+                    logging.error("Video capture device is not opened. Retrying...")
+                    cap = cv2.VideoCapture(0)  # 장치 다시 열기 시도
+                    time.sleep(1)
+                    continue  # 비디오 장치가 열리지 않으면 재시도
+
                 ret, frame = cap.read()
                 if not ret:
-                    break
+                    logging.error("Failed to grab frame. Retrying...")
+                    time.sleep(1)  # 실패한 경우 1초 대기 후 다시 시도
+                    continue
 
                 # 감정 분석 수행
                 result, texts, border_color = analyze_emotion(frame)
@@ -78,9 +90,8 @@ async def send_student_video():
                 }
                 try:
                     await websocket.send(pickle.dumps(data))
-                    # logging.info("Sent student video and emotion data")
                 except Exception as e:
-                    if log_flag == False:
+                    if not log_flag:
                         logging.info("Waiting for student connection")
                         log_flag = True
 

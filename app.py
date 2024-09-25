@@ -26,6 +26,7 @@ emotion_values_history = []
 start_time_offset = 0
 student_frame = None
 student_emotion = {}  # Initialize as an empty dictionary
+student_connected = False  # 학생 연결 상태 확인
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -57,8 +58,9 @@ def teacher_video_feed():
 
 # 학생 비디오 및 감정 분석 데이터를 수신
 async def receive_student_video(websocket):
-    global student_frame, student_emotion, emotion_history, time_history, emotion_values_history, start_time_offset
+    global student_frame, student_emotion, emotion_history, time_history, emotion_values_history, start_time_offset, student_connected
 
+    student_connected = True  # 학생이 연결되었음을 표시
     while True:
         try:
             data = await websocket.recv()
@@ -78,6 +80,7 @@ async def receive_student_video(websocket):
 
         except Exception as e:
             logging.error(f"Error receiving student video: {e}")
+            student_connected = False  # 연결 끊어짐을 표시
             break
 
 # 감정 분석 결과를 프레임에 오버레이하는 함수
@@ -99,10 +102,10 @@ def overlay_text_on_frame(frame, texts, border_color):
 
 # 학생 비디오 스트리밍 처리
 def generate_student_video():
-    global student_frame, student_emotion
+    global student_frame, student_emotion, student_connected, start_time_offset
     log_flag = False
     while True:
-        if student_frame is not None:
+        if student_connected and student_frame is not None:
             # 감정에 따라 테두리 색상 결정
             dominant_emotion = emotion_history[-1] if emotion_history else "neutral"
             neutral_value = student_emotion.get('neutral', 100)
@@ -119,7 +122,7 @@ def generate_student_video():
             student_frame_with_overlay = overlay_text_on_frame(student_frame, texts, border_color)
 
             # 플롯 생성 (학생 비디오의 높이에 맞게 조정)
-            plot_img = plot_emotion_history(student_frame_with_overlay.shape[0], start_time_offset, emotion_history, time_history, emotion_values_history)
+            plot_img, start_time_offset = plot_emotion_history(student_frame_with_overlay.shape[0], start_time_offset, emotion_history, time_history, emotion_values_history)
 
             # 플롯의 가로 세로 비율 유지하면서 학생 비디오의 높이에 맞게 조정
             plot_aspect_ratio = plot_img.shape[1] / plot_img.shape[0]  # 플롯의 가로/세로 비율
@@ -139,8 +142,10 @@ def generate_student_video():
             if not log_flag:
                 logging.info("Waiting for student connection")
                 log_flag = True
-            waiting_frame = np.zeros((480, 640, 3), dtype=np.uint8)
-            cv2.putText(waiting_frame, "Waiting for student...", (50, 240), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 2)
+            # 대기 화면 크기 조정
+            waiting_frame = np.zeros((120, 240, 3), dtype=np.uint8)  # 화면 크기를 120x240으로 줄임
+            cv2.putText(waiting_frame, "Waiting for student...", (10, 70), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1, cv2.LINE_AA)  # 글씨 크기와 위치 조정
             ret, buffer = cv2.imencode('.jpg', waiting_frame)
             frame_data = buffer.tobytes()
 

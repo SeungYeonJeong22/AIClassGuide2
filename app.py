@@ -6,9 +6,10 @@ import numpy as np
 from flask import Flask, render_template, Response
 from threading import Thread
 from dotenv import load_dotenv
-from plotting import plot_emotion_history
+from plotting import plot_emotion_history  # plotting.py의 함수 불러오기
 import logging
 import os
+import time
 
 load_dotenv('environments.env')
 
@@ -27,6 +28,8 @@ start_time_offset = 0
 student_frame = None
 student_emotion = {}  # Initialize as an empty dictionary
 student_connected = False  # 학생 연결 상태 확인
+frame_count = 0  # 1.5초 동안 수신한 프레임 수
+frame_interval = 60 / 265  # 기본값 (수신된 프레임 수로 업데이트 예정)
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -58,25 +61,36 @@ def teacher_video_feed():
 
 # 학생 비디오 및 감정 분석 데이터를 수신
 async def receive_student_video(websocket):
-    global student_frame, student_emotion, emotion_history, time_history, emotion_values_history, start_time_offset, student_connected
+    global student_frame, student_emotion, emotion_history, time_history, emotion_values_history, start_time_offset, student_connected, frame_count
 
     student_connected = True  # 학생이 연결되었음을 표시
+    frame_count = 0  # 초기화
+
+    start_time = time.time()  # 시작 시간 기록
     while True:
         try:
             data = await websocket.recv()
             data = pickle.loads(data)
+            # 1초 동안 프레임 수 계산
+            if time.time() - start_time <= 1:
+                frame_count += 1
+                continue
+            else:
+                # if frame_count > 0:  # 1초 동안 수신한 프레임이 있으면 계산
+                    # global frame_interval
+                    # frame_interval = 60 / (frame_count * (60 / 1))  # 1분 동안 수신할 프레임 수에 맞춰 frame_interval 조정            
+                
+                frame_data = data["frame"]
+                emotion_data = data["emotion"]
+                dominant_emotion = data["dominant_emotion"]
 
-            frame_data = data["frame"]
-            emotion_data = data["emotion"]
-            dominant_emotion = data["dominant_emotion"]
-
-            time_history.append(len(time_history))  # 단순 시간
-            emotion_history.append(dominant_emotion)
-            emotion_values_history.append(emotion_data)
-
-            student_emotion = emotion_data
-            nparr = np.frombuffer(frame_data, np.uint8)
-            student_frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                time_history.append(len(time_history))  # 단순 시간
+                emotion_history.append(dominant_emotion)
+                emotion_values_history.append(emotion_data)
+                
+                student_emotion = emotion_data
+                nparr = np.frombuffer(frame_data, np.uint8)
+                student_frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
         except Exception as e:
             logging.error(f"Error receiving student video: {e}")
@@ -102,8 +116,9 @@ def overlay_text_on_frame(frame, texts, border_color):
 
 # 학생 비디오 스트리밍 처리
 def generate_student_video():
-    global student_frame, student_emotion, student_connected, start_time_offset
+    global student_frame, student_emotion, student_connected, start_time_offset, frame_interval
     log_flag = False
+    start_timestap = time.time()
     while True:
         if student_connected and student_frame is not None:
             # 감정에 따라 테두리 색상 결정
@@ -118,11 +133,19 @@ def generate_student_video():
                 f"Dominant Emotion: {dominant_emotion} {round(student_emotion.get(dominant_emotion, 0), 1)}%",
             ]
 
+
             # 학생 비디오 프레임에 감정 분석 텍스트와 테두리 추가
             student_frame_with_overlay = overlay_text_on_frame(student_frame, texts, border_color)
 
             # 플롯 생성 (학생 비디오의 높이에 맞게 조정)
-            plot_img, start_time_offset = plot_emotion_history(student_frame_with_overlay.shape[0], start_time_offset, emotion_history, time_history, emotion_values_history)
+            plot_img, start_time_offset, start_timestap = plot_emotion_history(
+                student_frame_with_overlay.shape[0], 
+                start_time_offset, 
+                emotion_history, 
+                time_history, 
+                emotion_values_history, 
+                start_timestap
+            )
 
             # 플롯의 가로 세로 비율 유지하면서 학생 비디오의 높이에 맞게 조정
             plot_aspect_ratio = plot_img.shape[1] / plot_img.shape[0]  # 플롯의 가로/세로 비율
